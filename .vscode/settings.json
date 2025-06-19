@@ -1,0 +1,4 @@
+{
+    "sqldeveloper.logging.toFile": true,
+    "sqldeveloper.sqlHistory.historyLimit": 1000
+}
