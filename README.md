@@ -180,3 +180,95 @@ This helps banks identify key areas for improvement.
 
 ## 🚀 sentiment accuracy
 1️⃣ Refine sentiment analysis model accuracy. 2️⃣ Improve clustering logic using LDA topic modeling. 3️⃣ Integrate insights into business strategy reporting.
+
+💾 Customer Experience Analytics – Task 3: SQL Storage & Automation
+📌 Objective
+To enable structured querying and downstream analytics, Task 3 involved exporting sentiment- and theme-tagged reviews into an Oracle-compatible relational schema with reproducibility and automation in mind.
+
+### 🏛 Schema Design
+A normalized database schema was created with the following tables:
+
+### Table	Description
+CUSTOMER_REVIEW	Review text, rating, sentiment label, sentiment score
+THEME_TAG	Extracted theme (e.g. UI, Access, Support)
+BANK	Bank metadata (bank_id, bank_name, source info)
+Exported with:
+
+### sql
+SELECT DBMS_METADATA.GET_DDL('TABLE', 'CUSTOMER_REVIEW') FROM DUAL;
+⚙️ Automation Workflow
+Scripts were built for auto-export of query results to CSV using:
+
+SQL*Plus (Oracle CLI)
+
+PowerShell scripting with robust path handling
+
+SPOOL directives to ensure clean output
+
+### powershell
+$sqlQuery = "SELECT * FROM CUSTOMER_REVIEW ORDER BY sentiment_score DESC;"
+$sqlplusArgs = @("-s", "$user/$password@$tns", "@query.sql")
+Start-Process sqlplus.exe -ArgumentList $sqlplusArgs -Wait
+🧱 Reproducibility
+Version-controlled .sql schema exports
+
+Export logs under /task-3/logs/
+
+PowerShell error handling (e.g. SP2-0556) resolved via dynamic paths
+
+✅ Outcome: All reviews inserted with complete metadata and theme classifications, reproducible across environments.
+
+📊 Customer Experience Analytics – Task 4: Insights & Visualization
+📌 Objective
+Translate stored data into strategic business insights via sentiment trends, theme mapping, and data-driven visualizations.
+
+🔍 Analytical Pipeline
+python
+# Parse and explode theme tags
+df["parsed_theme"] = df["identified_theme"].apply(ast.literal_eval)
+df_exploded = df.explode("parsed_theme")
+df_exploded = df_exploded[df_exploded["parsed_theme"] != "Other"]
+
+# Sentiment & Theme grouping
+insights = df_exploded.groupby(["bank", "parsed_theme", "sentiment_label"]).size().reset_index(name="count")
+📈 Visualizations
+1️⃣ Sentiment Distribution per Bank
+
+Dashen: high positive skew
+
+BOA: major dip into negative territory
+
+2️⃣ Rating Histogram
+
+BOA's reviews heavily clustered at 1–2 stars
+
+Dashen displays healthy rightward bias (4–5 stars)
+
+3️⃣ Top Pain Points by Bank
+
+BOA: Login failures, crashes
+
+CBE: Authentication errors
+
+Dashen: Fewer severe complaints, mostly feature requests
+
+
+✅ Recommendations
+BOA:
+
+Prioritize crash/debug fixes and authentication reliability
+
+Add basic in-app support and improved error guidance
+
+CBE:
+
+Implement fallback for biometric login failures
+
+Refine account recovery paths
+
+Dashen:
+
+Expand feature set (budgeting, alerts)
+
+Preserve current performance consistency
+
